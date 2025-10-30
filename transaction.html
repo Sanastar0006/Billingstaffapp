@@ -73,11 +73,35 @@
       <option value="Cheque">Cheque</option>
     </select>
 
-    <button onclick="rawbtPrint()">🖨️ Print</button>
+    <button onclick="connectPrinter()">🔗 Connect Printer</button>
+    <button onclick="printBill()">🖨️ Print Bill</button>
   </div>
 
   <script>
-    function rawbtPrint() {
+    let printerDevice;
+    let printerCharacteristic;
+
+    async function connectPrinter() {
+      try {
+        printerDevice = await navigator.bluetooth.requestDevice({
+          acceptAllDevices: true,
+          optionalServices: [0x1101] // Serial Port UUID (SPP)
+        });
+        const server = await printerDevice.gatt.connect();
+        const service = await server.getPrimaryService(0x1101);
+        printerCharacteristic = await service.getCharacteristic('00002a57-0000-1000-8000-00805f9b34fb');
+        alert("✅ Printer Connected: " + printerDevice.name);
+      } catch (error) {
+        alert("❌ Connection failed: " + error);
+      }
+    }
+
+    async function printBill() {
+      if (!printerCharacteristic) {
+        alert("⚠️ Please connect printer first!");
+        return;
+      }
+
       const date = document.getElementById("txnDate").value || new Date().toLocaleDateString();
       const name = document.getElementById("custName").value || "N/A";
       const id = document.getElementById("custId").value || "-";
@@ -96,15 +120,10 @@ Payment Type: ${pay}
 Thank You! Visit Again 🙏
 `;
 
-      fetch("http://127.0.0.1:9100/print", {
-        method: "POST",
-        body: bill,
-        mode: "no-cors"
-      }).then(() => {
-        alert("✅ Sent to RawBT! Check printer.");
-      }).catch(err => {
-        alert("❌ Error: " + err);
-      });
+      const encoder = new TextEncoder();
+      const data = encoder.encode(bill);
+      await printerCharacteristic.writeValue(data);
+      alert("✅ Bill sent to printer!");
     }
   </script>
 </body>
