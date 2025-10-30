@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Transaction Entry - Jothi Anandham Chits</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      padding: 20px;
+    }
+    .container {
+      background: white;
+      max-width: 400px;
+      margin: auto;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    }
+    h2 {
+      text-align: center;
+      color: #333;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    input, select {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    button {
+      width: 100%;
+      margin-top: 15px;
+      padding: 10px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      background: #007bff;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Transaction Entry</h2>
+
+    <label>Date</label>
+    <input type="date" id="txnDate">
+
+    <label>Customer Name</label>
+    <input type="text" id="custName" placeholder="Enter Customer Name">
+
+    <label>Customer ID</label>
+    <input type="text" id="custId" placeholder="Enter Customer ID">
+
+    <label>Amount</label>
+    <input type="number" id="amount" placeholder="Enter Amount">
+
+    <label>Payment Type</label>
+    <select id="payType">
+      <option value="Cash">Cash</option>
+      <option value="Online">Online</option>
+      <option value="Cheque">Cheque</option>
+    </select>
+
+    <button onclick="rawbtPrint()">🖨️ Print</button>
+  </div>
+
+  <script>
+    function rawbtPrint() {
+      const date = document.getElementById("txnDate").value || new Date().toLocaleDateString();
+      const name = document.getElementById("custName").value || "N/A";
+      const id = document.getElementById("custId").value || "-";
+      const amount = document.getElementById("amount").value || "0";
+      const pay = document.getElementById("payType").value || "Cash";
+
+      const bill = `
+JOTHI ANANDHAM CHITS
+--------------------------
+Date: ${date}
+Customer: ${name}
+Customer ID: ${id}
+Amount: ₹${amount}
+Payment Type: ${pay}
+--------------------------
+Thank You! Visit Again 🙏
+`;
+
+      fetch("http://127.0.0.1:9100/print", {
+        method: "POST",
+        body: bill,
+        mode: "no-cors"
+      }).then(() => {
+        alert("✅ Sent to RawBT! Check printer.");
+      }).catch(err => {
+        alert("❌ Error: " + err);
+      });
+    }
+  </script>
+</body>
+</html>
