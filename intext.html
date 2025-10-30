@@ -505,38 +505,14 @@ function showReceipt(txn){
   el('receiptHtml').innerHTML = html;
   el('receiptModal').style.display='flex';
 }
-el('printReceiptBtn').addEventListener('click', () => {
-  const printContent = el('receiptHtml').innerHTML;
-  const printFrame = document.createElement('iframe');
-  printFrame.style.position = 'fixed';
-  printFrame.style.right = '0';
-  printFrame.style.bottom = '0';
-  printFrame.style.width = '0';
-  printFrame.style.height = '0';
-  printFrame.style.border = '0';
-  document.body.appendChild(printFrame);
-
-  const doc = printFrame.contentWindow.document;
-  doc.open();
-  doc.write(`
-    <html>
-      <head>
-        <title>Receipt</title>
-        <style>
-          body { font-family: monospace; font-size: 12px; width: 58mm; margin: 0; padding: 10px; }
-        </style>
-      </head>
-      <body>${printContent}</body>
-    </html>
-  `);
-  doc.close();
-
-  printFrame.contentWindow.focus();
-  printFrame.contentWindow.print();
-
-  // Remove iframe after printing
-  printFrame.contentWindow.onafterprint = () => document.body.removeChild(printFrame);
+el('closeReceipt').addEventListener('click', ()=> el('receiptModal').style.display='none');
+el('printReceiptBtn').addEventListener('click', ()=> {
+  const html = el('receiptHtml').innerHTML;
+  const w = window.open('','_blank','width=300,height=600');
+  w.document.write(`<html><head><title>Receipt</title><style>body{font-family:monospace;font-size:12px;width:58mm}</style></head><body>${html}<script>window.print();window.onafterprint=function(){window.close();}<\/script></body></html>`);
+  w.document.close();
 });
+
 /* Collections */
 function populateCollectionsMadeBy(){
   const sel = el('collectionBy'); sel.innerHTML = '<option value="">-- select --</option>';
